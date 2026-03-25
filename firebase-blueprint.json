@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user-specific settings and profile information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique identifier for the user." },
+        "displayName": { "type": "string", "description": "The user's display name." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "photoURL": { "type": "string", "description": "The user's profile picture URL." },
+        "totalBalance": { "type": "number", "description": "The user's current total bank balance." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the profile was created." }
+      },
+      "required": ["uid", "email"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Represents a financial transaction.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user ID who owns this transaction." },
+        "amount": { "type": "number", "description": "The amount of the transaction." },
+        "category": { "type": "string", "description": "The category (e.g., Food, Rent, Salary)." },
+        "description": { "type": "string", "description": "A brief description." },
+        "date": { "type": "string", "format": "date-time", "description": "When the transaction occurred." },
+        "type": { "type": "string", "enum": ["income", "expense", "credit", "debit"], "description": "Whether it's an income/credit or an expense/debit." },
+        "documentType": { "type": "string", "enum": ["generic", "bank_statement", "customer_invoice", "supplier_invoice"], "description": "The source document type." },
+        "status": { "type": "string", "enum": ["pending", "cleared"], "description": "The status of the transaction." },
+        "relationshipType": { "type": "string", "enum": ["Strict", "Moderate", "Flexible", "Friendly"], "description": "The relationship type with the supplier." }
+      },
+      "required": ["uid", "amount", "category", "date", "type", "status"]
+    },
+    "FileMetadata": {
+      "title": "File Metadata",
+      "description": "Metadata for files uploaded to Firebase Storage.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user ID who uploaded the file." },
+        "fileName": { "type": "string", "description": "The name of the file." },
+        "fileUrl": { "type": "string", "description": "The URL to access the file." },
+        "fileType": { "type": "string", "description": "The MIME type of the file." },
+        "fileSize": { "type": "number", "description": "The size of the file in bytes." },
+        "documentType": { "type": "string", "enum": ["generic", "bank_statement", "customer_invoice", "supplier_invoice"], "description": "The type of document." },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "When the file was uploaded." }
+      },
+      "required": ["uid", "fileName", "fileUrl", "uploadedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents."
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "User transactions."
+    },
+    "/files/{fileId}": {
+      "schema": "FileMetadata",
+      "description": "Metadata for user files."
+    }
+  }
+}

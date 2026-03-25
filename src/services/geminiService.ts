@@ -26,7 +26,7 @@ export interface ScannedBankStatement {
 
 export async function scanInvoice(base64Data: string, mimeType: string, forcedType?: 'income' | 'expense'): Promise<ScannedInvoice> {
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-2.0-flash-exp",
     contents: [
       {
         inlineData: {
@@ -75,7 +75,7 @@ export async function scanInvoice(base64Data: string, mimeType: string, forcedTy
 
 export async function scanBankStatement(base64Data: string, mimeType: string): Promise<ScannedBankStatement> {
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-2.0-flash-exp",
     contents: [
       {
         inlineData: {
@@ -138,7 +138,7 @@ export async function generateNegotiationMessage(
   tone: 'Informal' | 'Formal' = 'Formal'
 ): Promise<string> {
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: "gemini-2.0-flash-exp",
     contents: [
       {
         text: `Generate a context-aware payment negotiation message for a supplier.

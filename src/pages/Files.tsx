@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Link as LinkIcon, AlertCircle, Info, Landmark, Loader2, Upload, File as FileIcon, Sparkles, ExternalLink, Trash2, Check, X } from 'lucide-react';
+import { Link as LinkIcon, CircleAlert as AlertCircle, Info, Landmark, Loader as Loader2, Upload, File as FileIcon, Sparkles, ExternalLink, Trash2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '../lib/utils';
 
@@ -87,10 +87,12 @@ export default function Files({ user }: { user: User }) {
   const handleScan = async (file: FileMetadata) => {
     setScanningId(file.id);
     try {
+      toast.loading('Analyzing document...');
+
       // Fetch file as blob
       const response = await fetch(file.fileUrl);
       const blob = await response.blob();
-      
+
       // Convert to base64
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve) => {
@@ -102,14 +104,23 @@ export default function Files({ user }: { user: User }) {
       reader.readAsDataURL(blob);
       const base64 = await base64Promise;
 
+      // Add timeout for scan operations
+      const scanPromise = file.documentType === 'bank_statement'
+        ? scanBankStatement(base64, file.fileType)
+        : scanInvoice(base64, file.fileType);
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Analysis timed out after 60 seconds')), 60000)
+      );
+
+      const result = await Promise.race([scanPromise, timeoutPromise]);
+
       if (file.documentType === 'bank_statement') {
-        const result = await scanBankStatement(base64, file.fileType);
-        setBankData(result);
+        setBankData(result as ScannedBankStatement);
         setIsBankReviewOpen(true);
         toast.success('Bank statement scanned! Please review transactions.');
       } else {
-        const result = await scanInvoice(base64, file.fileType);
-        setScannedData(result);
+        setScannedData(result as ScannedInvoice);
         setIsReviewOpen(true);
         toast.success('Scan complete! Please review the details.');
       }
